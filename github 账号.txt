@@ -1,0 +1,5 @@
+
+
+git  add  “文件名称+后缀名”
+git commit -m "备注信息 可以是版本号 "   提交
+git push 
