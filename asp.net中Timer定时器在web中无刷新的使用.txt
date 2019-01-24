@@ -1,0 +1,67 @@
+最近在做一个项目的时候，web端的数据需要与数据源进行实时同步，并保证数据的准确性，当时，考虑到使用ajax异步刷新技术。但后来在网上查找相关资料时，发现这样做，太浪费资源了，因为ajax的提交请求不应该这么频繁的，只适用于那种手动请求响应的那种，因此这种办法是行不通了，后来，发现asp.net中有一个定时器Timer，可以进行实时同步数据，因此本人就做了一个小小的测试，发现还挺好用的，于是乎就有了下文。如下：
+
+关于如何准确定时器同步出现问题的解决方案：http://www.shaoqun.com/a/103654.aspx
+
+aspx页面中的代码：
+<form id="form1" runat="server"> 
+    <div>
+    <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
+      <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+      <ContentTemplate>
+        <asp:Timer ID="Timer1" runat="server" Interval="1000" ontick="Timer1_Tick">
+        </asp:Timer>
+         update中的：<asp:Label  ID="Label2" runat="server" Text=""></asp:Label>
+      </ContentTemplate>
+           </asp:UpdatePanel>
+        当前秒：<asp:Label ID="Label1" runat="server" Text=""></asp:Label>
+    </div>
+   </form>
+   
+   cs服务器上的代码：
+   protected void Page_Load(object sender, EventArgs e)
+        {
+           
+        }
+        protected void Timer1_Tick(object sender, EventArgs e)
+        {
+            //这里可以操作你想做的事情，比如定时查询数据库
+            Label1.Text = DateTime.Now.ToLongTimeString()+":"+DateTime.Now.Millisecond;
+            Label2.Text = DateTime.Now.ToLongTimeString() + ":" + DateTime.Now.Millisecond;
+        }
+最近在做一个项目的时候，web端的数据需要与数据源进行实时同步，并保证数据的准确性，当时，考虑到使用ajax异步刷新技术。但后来在网上查找相关资料时，发现这样做，太浪费资源了，因为ajax的提交请求不应该这么频繁的，只适用于那种手动请求响应的那种，因此这种办法是行不通了，后来，发现asp.net中有一个定时器Timer，可以进行实时同步数据，因此本人就做了一个小小的测试，发现还挺好用的，于是乎就有了下文。如下：
+
+关于如何准确定时器同步出现问题的解决方案：http://www.shaoqun.com/a/103654.aspx
+
+aspx页面中的代码：
+<form id="form1" runat="server"> 
+    <div>
+    <asp:ScriptManager ID="ScriptManager1" runat="server"></asp:ScriptManager>
+      <asp:UpdatePanel ID="UpdatePanel1" runat="server">
+      <ContentTemplate>
+        <asp:Timer ID="Timer1" runat="server" Interval="1000" ontick="Timer1_Tick">
+        </asp:Timer>
+         update中的：<asp:Label  ID="Label2" runat="server" Text=""></asp:Label>
+      </ContentTemplate>
+           </asp:UpdatePanel>
+        当前秒：<asp:Label ID="Label1" runat="server" Text=""></asp:Label>
+    </div>
+   </form>
+   
+   cs服务器上的代码：
+   protected void Page_Load(object sender, EventArgs e)
+        {
+           
+        }
+        protected void Timer1_Tick(object sender, EventArgs e)
+        {
+            //这里可以操作你想做的事情，比如定时查询数据库
+            Label1.Text = DateTime.Now.ToLongTimeString()+":"+DateTime.Now.Millisecond;
+            Label2.Text = DateTime.Now.ToLongTimeString() + ":" + DateTime.Now.Millisecond;
+        }
+  
+        
+   说明一下：
+
+要想使用Timer定时器进行无刷新技术实现。首先在aspx页面代码中必须使用ScriptManager控件，同时使用UpdatePanel控件，这样才会达到想要的结果。
+
+测试后，你会发现，在UpdatePanel中的Label2对应的时间在不停的变化，和Lable1只是在你第一次打开页面是 显示，此后就不会显示了。     
