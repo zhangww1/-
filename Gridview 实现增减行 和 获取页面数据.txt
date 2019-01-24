@@ -1,0 +1,190 @@
+前台页面代码：
+<asp:GridView ID="gv" runat="server" CssClass="list-table center" AutoGenerateColumns="False" DataKeyNames="Id"
+                    ShowHeaderWhenEmpty="True" OnRowDataBound="gv_RowDataBound" OnRowCommand="gv_RowCommand" OnRowDeleting="gv_RowDeleting">
+                    <Columns>
+                        <asp:TemplateField HeaderText="序号" ItemStyle-HorizontalAlign="Center">
+                            <ItemTemplate>
+                                <asp:Label ID="lblNumber" runat="server" Text="<%#gv.Rows.Count+1 %>"></asp:Label>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="项目编码" ItemStyle-HorizontalAlign="Center">
+                            <ItemTemplate>
+                                <eafwc:PopupInput runat="server" TextBoxWidth="150" ID="piProject" OnSelectedChanged="piProject_SelectedChanged" />
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="项目名称" ItemStyle-HorizontalAlign="Center">
+                            <ItemTemplate>
+                                <asp:Label ID="lblProjectName" runat="server"></asp:Label>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="当前项目状态" ItemStyle-HorizontalAlign="Center">
+                            <ItemTemplate>
+                                <asp:Label ID="lblCurrentStatus" runat="server"></asp:Label>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="立项金额" ItemStyle-HorizontalAlign="Center">
+                            <ItemTemplate>
+                                <asp:Label ID="lblApprovalAmount" runat="server"></asp:Label>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="设计批复金额" ItemStyle-HorizontalAlign="Center">
+                            <ItemTemplate>
+                                <asp:Label ID="lblDesignAmount" runat="server"></asp:Label>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="实际投资金额" ItemStyle-HorizontalAlign="Center">
+                            <ItemTemplate>
+                                <asp:Label ID="lblActualInvestmentAmount" runat="server"></asp:Label>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="转资金额" ItemStyle-HorizontalAlign="Center">
+                            <ItemTemplate>
+                                <asp:Label ID="lblTransferAmount" runat="server"></asp:Label>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="当前竣工决算总表信息" ItemStyle-HorizontalAlign="Center">
+                            <ItemTemplate>
+                                <asp:HyperLink ID="hyFinalAccountId" runat="server" Target="_blank"></asp:HyperLink>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="当前未转资金额" ItemStyle-HorizontalAlign="Center">
+                            <ItemTemplate>
+                                <asp:Label ID="lblNoTransferAmount" runat="server"></asp:Label>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="当前项目整体进度" ItemStyle-HorizontalAlign="Center">
+                            <ItemTemplate>
+                                <asp:Label ID="lblOverallprogress" runat="server"></asp:Label>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="当前项目所属阶段" ItemStyle-HorizontalAlign="Center">
+                            <ItemTemplate>
+                                <asp:Label ID="lblSubordinateStage" runat="server"></asp:Label>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="当前首页待办" ItemStyle-HorizontalAlign="Center">
+                            <ItemTemplate>
+                                <asp:Label ID="lblTodo" runat="server"></asp:Label>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="项目详情" ItemStyle-HorizontalAlign="Center">
+                            <ItemTemplate>
+                                <asp:Label ID="lblProject" runat="server"></asp:Label>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="备注" ItemStyle-HorizontalAlign="Center">
+                            <ItemTemplate>
+                                <asp:TextBox ID="tbRemark" runat="server" TextMode="MultiLine"></asp:TextBox>
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                        <asp:TemplateField HeaderText="操作">
+                            <ItemTemplate>
+                                <asp:Button ID="btnAdd" runat="server" Text="+" CommandName="Add" />
+                                <asp:Button ID="btnDelete" runat="server" Text="-" OnClientClick="return confirm('确定要删除吗？')" CommandName="Delete" />
+                            </ItemTemplate>
+                        </asp:TemplateField>
+                    </Columns>
+                </asp:GridView>
+                
+后台代码：
+1）获取行信息代码：
+    /// <summary>
+    /// 获取行信息
+    /// </summary>
+    /// <returns></returns>
+
+    public IList<ProjectHandOverItem> GetItemsList()
+    {
+        IList<ProjectHandOverItem> list = new List<ProjectHandOverItem>();
+        foreach (GridViewRow row in gv.Rows)
+        {
+            PopupInput piProject = row.FindControl("piProject") as PopupInput;
+            Label lblProjectName = row.FindControl("lblProjectName") as Label;
+            Label lblCurrentStatus = row.FindControl("lblCurrentStatus") as Label;
+            Label lblApprovalAmount = row.FindControl("lblApprovalAmount") as Label;
+            Label lblDesignAmount = row.FindControl("lblDesignAmount") as Label;
+            Label lblActualInvestmentAmount = row.FindControl("lblActualInvestmentAmount") as Label;
+            Label lblTransferAmount = row.FindControl("lblTransferAmount") as Label;
+            HyperLink hyFinalAccountId = row.FindControl("hyFinalAccountId") as HyperLink;
+            Label lblNoTransferAmount = row.FindControl("lblNoTransferAmount") as Label;
+            Label lblOverallprogress = row.FindControl("lblOverallprogress") as Label;
+            Label lblSubordinateStage = row.FindControl("lblSubordinateStage") as Label;
+            Label lblTodo = row.FindControl("lblTodo") as Label;
+            Label lblProject = row.FindControl("lblProject") as Label;
+            TextBox tbRemark = row.FindControl("tbRemark") as TextBox;
+
+            ProjectHandOverItem item = new ProjectHandOverItem();
+            string projectNumber = piProject.Value;
+            string currentStatus = lblCurrentStatus.Text.Trim();
+            decimal? approvalAmount = lblApprovalAmount.Text.ToDecimal();
+            decimal? designAmount = lblDesignAmount.Text.ToDecimal();
+            decimal? investmentAmount = lblActualInvestmentAmount.Text.ToDecimal();
+            decimal? transferAmount = lblTransferAmount.Text.ToDecimal();
+            decimal? transferANomount = lblNoTransferAmount.Text.ToDecimal();
+            string overallprogress = lblOverallprogress.Text.Trim();
+            string subordinateStage = lblSubordinateStage.Text.Trim();
+            string todo = lblTodo.Text.Trim();
+            string remark = tbRemark.Text.Trim();
+
+            if (!string.IsNullOrEmpty(projectNumber))
+            {
+                Project project = IoCContainer.Get<IProjectDao>().SelectByNumber(projectNumber);
+                item.ProjectNumber = projectNumber;
+                item.ProjectName = project.Name;
+            }
+            else
+                throw new ValidationException("请选择项目");
+            if (!string.IsNullOrEmpty(currentStatus))
+                item.CurrentStatus = currentStatus;
+            if (approvalAmount.HasValue)
+                item.ProReplyAmount = approvalAmount.Value;
+            if (designAmount.HasValue)
+                item.DesignReplyAmount = designAmount.Value;
+            if (investmentAmount.HasValue)
+                item.InvestmentAmount = investmentAmount.Value;
+            if (transferAmount.HasValue)
+                item.TransferAmount = transferAmount.Value;
+            if (transferAmount.HasValue)
+                item.NoTransferAmount = transferANomount.Value;
+            if (!string.IsNullOrEmpty(overallprogress))
+                item.Overallprogress = overallprogress;
+            if (!string.IsNullOrEmpty(subordinateStage))
+                item.SubordinateStage = subordinateStage;
+            if (!string.IsNullOrEmpty(todo))
+                item.Todo = todo;
+            if (!string.IsNullOrEmpty(remark))
+                item.Remark = remark;
+            list.Add(item);
+        }
+        return list;
+    }
+    
+2）增减行
+    /// <summary>
+    /// 增加行
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    protected void gv_RowCommand(object sender, GridViewCommandEventArgs e)
+    {
+        if (e.CommandName == "Add")
+        {
+            IList<ProjectHandOverItem> list = GetItemsList();
+            list.Add(new ProjectHandOverItem());
+            gv.DataSource = list;
+            gv.DataBind();
+        }
+    }
+
+    /// <summary>
+    /// 减行
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
+    protected void gv_RowDeleting(object sender, GridViewDeleteEventArgs e)
+    {
+        IList<ProjectHandOverItem> items = GetItemsList();
+        items.RemoveAt(e.RowIndex);
+        gv.DataSource = items;
+        gv.DataBind();
+    }
